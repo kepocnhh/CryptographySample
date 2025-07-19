@@ -2,6 +2,7 @@ package sp.sample.cryptography
 
 import android.app.Application
 import android.content.Context
+import sp.sample.cryptography.provider.FinalAssets
 import sp.sample.cryptography.provider.FinalLocals
 import sp.sample.cryptography.provider.Injection
 
@@ -11,6 +12,7 @@ internal class App : Application() {
         val context: Context = this
         _injection = Injection(
             locals = FinalLocals(context = context),
+            assets = FinalAssets(context = context),
         )
     }
 
