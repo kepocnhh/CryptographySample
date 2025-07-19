@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import sp.sample.cryptography.provider.FinalAssets
 import sp.sample.cryptography.provider.FinalLocals
+import sp.sample.cryptography.provider.FinalSecrets
 import sp.sample.cryptography.provider.Injection
 
 internal class App : Application() {
@@ -13,6 +14,7 @@ internal class App : Application() {
         _injection = Injection(
             locals = FinalLocals(context = context),
             assets = FinalAssets(context = context),
+            secrets = FinalSecrets(),
         )
     }
 
