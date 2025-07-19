@@ -66,4 +66,5 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation(compose.foundation)
     implementation("com.github.kepocnhh:Bytes:0.3.0u-SNAPSHOT")
+    implementation("androidx.security:security-crypto:1.0.0")
 }

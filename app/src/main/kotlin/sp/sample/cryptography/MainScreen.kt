@@ -22,9 +22,14 @@ import sp.kx.bytes.toHEX
 @Composable
 internal fun MainScreen() {
     val insets = WindowInsets.systemBars.asPaddingValues()
-    val encoded = remember { App.injection.assets.open("foo.public.der").use { it.readBytes() } }
-    val public = remember { App.injection.secrets.toPublicKey(encoded) }
-    val hash = remember { App.injection.secrets.sha256(public.encoded).toHEX() }
+    val installId = remember { App.injection.locals.installId }
+    val publicKeyEncoded = remember { App.injection.assets.open("foo.public.der").use { it.readBytes() } }
+    val publicKey = remember { App.injection.secrets.toPublicKey(publicKeyEncoded) }
+    val publicKeyHash = remember { App.injection.secrets.sha256(publicKey.encoded).toHEX() }
+    val secretKeyEncoded = remember { App.injection.locals.key }
+    val spec = remember { App.injection.locals.spec }
+    val secretKey = remember { App.injection.secrets.toSecretKey(password = secretKeyEncoded.toHEX().toCharArray(), spec = spec) }
+    val secretKeyHash = remember { App.injection.secrets.sha256(secretKey.encoded).toHEX() }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -35,7 +40,27 @@ internal fun MainScreen() {
                 .fillMaxSize()
                 .padding(insets),
         ) {
+            BasicText(
+                modifier = Modifier.fillMaxWidth(),
+                text = "install id:",
+                style = TextStyle(color = Color.Black),
+            )
+            BasicText(
+                modifier = Modifier.fillMaxWidth(),
+                text = installId,
+                style = TextStyle(color = Color.Black, fontFamily = FontFamily.Monospace),
+            )
             Spacer(Modifier.weight(1f))
+            BasicText(
+                modifier = Modifier.fillMaxWidth(),
+                text = "salt:",
+                style = TextStyle(color = Color.Black),
+            )
+            BasicText(
+                modifier = Modifier.fillMaxWidth(),
+                text = spec.salt.toHEX(),
+                style = TextStyle(color = Color.Black, fontFamily = FontFamily.Monospace),
+            )
             BasicText(
                 modifier = Modifier.fillMaxWidth(),
                 text = "public key:",
@@ -43,7 +68,17 @@ internal fun MainScreen() {
             )
             BasicText(
                 modifier = Modifier.fillMaxWidth(),
-                text = hash,
+                text = publicKeyHash,
+                style = TextStyle(color = Color.Black, fontFamily = FontFamily.Monospace),
+            )
+            BasicText(
+                modifier = Modifier.fillMaxWidth(),
+                text = "secret key:",
+                style = TextStyle(color = Color.Black),
+            )
+            BasicText(
+                modifier = Modifier.fillMaxWidth(),
+                text = secretKeyHash,
                 style = TextStyle(color = Color.Black, fontFamily = FontFamily.Monospace),
             )
         }

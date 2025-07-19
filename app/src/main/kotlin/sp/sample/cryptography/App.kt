@@ -6,15 +6,17 @@ import sp.sample.cryptography.provider.FinalAssets
 import sp.sample.cryptography.provider.FinalLocals
 import sp.sample.cryptography.provider.FinalSecrets
 import sp.sample.cryptography.provider.Injection
+import sp.sample.cryptography.provider.Secrets
 
 internal class App : Application() {
     override fun onCreate() {
         super.onCreate()
         val context: Context = this
+        val secrets: Secrets = FinalSecrets()
         _injection = Injection(
-            locals = FinalLocals(context = context),
+            locals = FinalLocals(context = context, secrets = secrets),
             assets = FinalAssets(context = context),
-            secrets = FinalSecrets(),
+            secrets = secrets,
         )
     }
 
