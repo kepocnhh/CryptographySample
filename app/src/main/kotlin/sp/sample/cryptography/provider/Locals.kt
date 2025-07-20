@@ -1,9 +1,9 @@
 package sp.sample.cryptography.provider
 
-import sp.sample.cryptography.entity.SecretKeySpec
+import javax.crypto.spec.PBEKeySpec
 
 internal interface Locals {
     val installId: String
-    val key: ByteArray
-    val spec: SecretKeySpec
+    val spec: PBEKeySpec
+    val iv: ByteArray
 }

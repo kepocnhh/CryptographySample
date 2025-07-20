@@ -1,15 +1,15 @@
 package sp.sample.cryptography.provider
 
-import android.util.Base64
-import sp.sample.cryptography.entity.SecretKeySpec
 import java.security.KeyFactory
 import java.security.MessageDigest
 import java.security.PublicKey
+import java.security.spec.KeySpec
 import java.security.spec.X509EncodedKeySpec
-import javax.crypto.KeyGenerator
+import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 internal class FinalSecrets : Secrets {
     override fun toPublicKey(encoded: ByteArray): PublicKey {
@@ -18,26 +18,41 @@ internal class FinalSecrets : Secrets {
         return keyFactory.generatePublic(keySpec)
     }
 
+    override fun toSecretKey(encoded: ByteArray): SecretKey {
+        return SecretKeySpec(encoded, "AES")
+    }
+
+    override fun getSecretKey(spec: KeySpec): SecretKey {
+        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+        return factory.generateSecret(spec)
+    }
+
     override fun sha256(encoded: ByteArray): ByteArray {
         val md = MessageDigest.getInstance("SHA256")
         return md.digest(encoded)
     }
 
-    override fun newSecretKey(): SecretKey {
-        val generator = KeyGenerator.getInstance("AES")
-        return generator.generateKey()
+    override fun encrypt(key: SecretKey, decrypted: ByteArray, iv: ByteArray): ByteArray {
+//        val cipher = Cipher.getInstance("AES")
+        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+//        val cipher = Cipher.getInstance("AES_256/CBC/NOPADDING")
+//        val cipher = Cipher.getInstance("AES_256/CBC/PKCS5PADDING")
+//        cipher.init(Cipher.ENCRYPT_MODE, key)
+        cipher.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(iv))
+        return cipher.doFinal(decrypted)
     }
 
-    override fun toSecretKey(password: CharArray, spec: SecretKeySpec): SecretKey {
-        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        return factory.generateSecret(PBEKeySpec(password, spec.salt, spec.iterations, spec.length))
+    override fun decrypt(key: SecretKey, encrypted: ByteArray, iv: ByteArray): ByteArray {
+//        val cipher = Cipher.getInstance("AES")
+        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+//        cipher.init(Cipher.DECRYPT_MODE, key)
+        cipher.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(iv))
+        return cipher.doFinal(encrypted)
     }
 
-    override fun base64(bytes: ByteArray): String {
-        return String(Base64.decode(bytes, Base64.DEFAULT))
-    }
-
-    override fun base64(text: String): ByteArray {
-        return Base64.encode(text.toByteArray(), Base64.DEFAULT)
+    override fun encrypt(key: PublicKey, decrypted: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
+        cipher.init(Cipher.ENCRYPT_MODE, key)
+        return cipher.doFinal(decrypted)
     }
 }

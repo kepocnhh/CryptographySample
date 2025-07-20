@@ -1,14 +1,15 @@
 package sp.sample.cryptography.provider
 
-import sp.sample.cryptography.entity.SecretKeySpec
 import java.security.PublicKey
+import java.security.spec.KeySpec
 import javax.crypto.SecretKey
 
 internal interface Secrets {
     fun toPublicKey(encoded: ByteArray): PublicKey
+    fun toSecretKey(encoded: ByteArray): SecretKey
+    fun getSecretKey(spec: KeySpec): SecretKey
     fun sha256(encoded: ByteArray): ByteArray
-    fun newSecretKey(): SecretKey
-    fun toSecretKey(password: CharArray, spec: SecretKeySpec): SecretKey
-    fun base64(bytes: ByteArray): String
-    fun base64(text: String): ByteArray
+    fun encrypt(key: SecretKey, decrypted: ByteArray, iv: ByteArray): ByteArray
+    fun decrypt(key: SecretKey, encrypted: ByteArray, iv: ByteArray): ByteArray
+    fun encrypt(key: PublicKey, decrypted: ByteArray): ByteArray
 }

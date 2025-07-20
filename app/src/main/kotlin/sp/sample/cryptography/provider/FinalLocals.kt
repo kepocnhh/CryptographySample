@@ -6,9 +6,9 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import sp.kx.bytes.toByteArray
 import sp.sample.cryptography.BuildConfig
-import sp.sample.cryptography.entity.SecretKeySpec
 import java.io.File
 import java.util.UUID
+import javax.crypto.spec.PBEKeySpec
 
 internal class FinalLocals(
     private val context: Context,
@@ -46,27 +46,14 @@ internal class FinalLocals(
             }
         }
 
-    override val key: ByteArray
+    override val spec: PBEKeySpec
         get() {
-            val fileName = "foo.key"
-            val file = context.filesDir.resolve(fileName)
-            if (!file.exists()) {
-                file.encrypted().openFileOutput().use {
-                    it.write(secrets.newSecretKey().encoded)
-                }
-            }
-            return file.encrypted().openFileInput().use {
-                it.readBytes()
-            }
+            val password = UUID.fromString("dc301e15-5d68-4325-9bb5-b0fa8d96ae5e").toString()
+            val salt = 1752940070000L.toByteArray()
+            val iterations = 10_000
+            val length = 256
+            return PBEKeySpec(password.toCharArray(), salt, iterations, length)
         }
 
-    override val spec: SecretKeySpec
-        get() {
-            return SecretKeySpec(
-                salt = 1752940070000L.toByteArray(), // todo
-                iv = ByteArray(0),
-                iterations = 10_000,
-                length = 256,
-            )
-        }
+    override val iv = UUID.fromString("1e304f22-03d0-4445-9722-bfd88bf6078b").toByteArray()
 }

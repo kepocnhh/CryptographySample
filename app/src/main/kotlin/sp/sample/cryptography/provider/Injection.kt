@@ -4,4 +4,5 @@ internal class Injection(
     val locals: Locals,
     val assets: Assets,
     val secrets: Secrets,
+    val files: Files,
 )

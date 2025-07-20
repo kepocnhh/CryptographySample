@@ -3,6 +3,7 @@ package sp.sample.cryptography
 import android.app.Application
 import android.content.Context
 import sp.sample.cryptography.provider.FinalAssets
+import sp.sample.cryptography.provider.FinalFiles
 import sp.sample.cryptography.provider.FinalLocals
 import sp.sample.cryptography.provider.FinalSecrets
 import sp.sample.cryptography.provider.Injection
@@ -17,6 +18,7 @@ internal class App : Application() {
             locals = FinalLocals(context = context, secrets = secrets),
             assets = FinalAssets(context = context),
             secrets = secrets,
+            files = FinalFiles(),
         )
     }
 
