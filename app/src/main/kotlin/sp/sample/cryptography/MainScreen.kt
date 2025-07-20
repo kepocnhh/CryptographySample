@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import sp.kx.bytes.toHEX
 
 @Composable
@@ -36,11 +37,11 @@ internal fun MainScreen() {
     val publicKey = remember { App.injection.secrets.toPublicKey(publicKeyEncoded) }
     val publicKeyHash = remember { App.injection.secrets.sha256(publicKey.encoded).toHEX() }
     val spec = remember { App.injection.locals.spec }
-    val iv = remember { App.injection.locals.iv }
     val secretKey = remember { App.injection.secrets.getSecretKey(spec = spec) }
     val secretKeyEncrypted = remember { App.injection.secrets.encrypt(publicKey, secretKey.encoded) }
     val secretKeyHash = remember { App.injection.secrets.sha256(secretKey.encoded).toHEX() }
     val payload = remember { System.currentTimeMillis().toString() }
+    val iv = remember { App.injection.locals.iv }
     val encrypted = remember { App.injection.secrets.encrypt(secretKey, payload.toByteArray(), iv = iv) }
     val decrypted = remember { App.injection.secrets.decrypt(secretKey, encrypted, iv = iv) }
     val encryptedHash = remember { App.injection.secrets.sha256(encrypted) }
@@ -143,11 +144,41 @@ internal fun MainScreen() {
                     .fillMaxWidth()
                     .height(48.dp)
                     .clickable {
-                        val intent = Intent(Intent.ACTION_SEND)
-                        // todo
+                        MediaScannerConnection.scanFile(context, arrayOf(App.injection.files.docs.absolutePath), arrayOf("*/*")) { _, _ ->
+                            val file = App.injection.files.docs.resolve("key-$installId.enc")
+                            file.delete()
+                            file.writeBytes(secretKeyEncrypted)
+                            val intent = Intent(Intent.ACTION_SEND)
+                            intent.type = "text/plain"
+                            val uri = FileProvider.getUriForFile(context, "${BuildConfig.APPLICATION_ID}.fileprovider", file)
+                            intent.putExtra(Intent.EXTRA_STREAM, uri)
+                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            context.startActivity(intent)
+                        }
                     }
                     .wrapContentSize(),
                 text = "share encrypted key",
+                style = TextStyle(color = Color.Black),
+            )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable {
+                        MediaScannerConnection.scanFile(context, arrayOf(App.injection.files.docs.absolutePath), arrayOf("*/*")) { _, _ ->
+                            val file = App.injection.files.docs.resolve("payload-$installId-${System.currentTimeMillis()}.enc")
+                            file.delete()
+                            file.writeBytes(encrypted)
+                            val intent = Intent(Intent.ACTION_SEND)
+                            intent.type = "text/plain"
+                            val uri = FileProvider.getUriForFile(context, "${BuildConfig.APPLICATION_ID}.fileprovider", file)
+                            intent.putExtra(Intent.EXTRA_STREAM, uri)
+                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            context.startActivity(intent)
+                        }
+                    }
+                    .wrapContentSize(),
+                text = "share encrypted payload",
                 style = TextStyle(color = Color.Black),
             )
             Spacer(Modifier.weight(1f))
@@ -179,6 +210,16 @@ internal fun MainScreen() {
             BasicText(
                 modifier = Modifier.fillMaxWidth(),
                 text = String(spec.password),
+                style = TextStyle(color = Color.Black, fontFamily = FontFamily.Monospace),
+            )
+            BasicText(
+                modifier = Modifier.fillMaxWidth(),
+                text = "secret key hex:",
+                style = TextStyle(color = Color.Black),
+            )
+            BasicText(
+                modifier = Modifier.fillMaxWidth(),
+                text = secretKey.encoded.toHEX(),
                 style = TextStyle(color = Color.Black, fontFamily = FontFamily.Monospace),
             )
             BasicText(
