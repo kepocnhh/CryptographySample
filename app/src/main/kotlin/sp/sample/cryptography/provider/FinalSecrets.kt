@@ -34,19 +34,23 @@ internal class FinalSecrets : Secrets {
 
     override fun encrypt(key: SecretKey, decrypted: ByteArray, iv: ByteArray): ByteArray {
 //        val cipher = Cipher.getInstance("AES")
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+//        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
 //        val cipher = Cipher.getInstance("AES_256/CBC/NOPADDING")
 //        val cipher = Cipher.getInstance("AES_256/CBC/PKCS5PADDING")
-//        cipher.init(Cipher.ENCRYPT_MODE, key)
-        cipher.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(iv))
+//        val cipher = Cipher.getInstance("AES/GCM/NOPADDING")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING")
+        cipher.init(Cipher.ENCRYPT_MODE, key)
+//        cipher.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(iv))
         return cipher.doFinal(decrypted)
     }
 
     override fun decrypt(key: SecretKey, encrypted: ByteArray, iv: ByteArray): ByteArray {
 //        val cipher = Cipher.getInstance("AES")
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-//        cipher.init(Cipher.DECRYPT_MODE, key)
-        cipher.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(iv))
+//        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+//        val cipher = Cipher.getInstance("AES/GCM/NOPADDING")
+        val cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING")
+        cipher.init(Cipher.DECRYPT_MODE, key)
+//        cipher.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(iv))
         return cipher.doFinal(encrypted)
     }
 

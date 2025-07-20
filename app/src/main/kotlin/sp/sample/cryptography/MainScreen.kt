@@ -1,5 +1,6 @@
 package sp.sample.cryptography
 
+import android.content.Intent
 import android.media.MediaScannerConnection
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -135,6 +136,18 @@ internal fun MainScreen() {
                     }
                     .wrapContentSize(),
                 text = "export files",
+                style = TextStyle(color = Color.Black),
+            )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable {
+                        val intent = Intent(Intent.ACTION_SEND)
+                        // todo
+                    }
+                    .wrapContentSize(),
+                text = "share encrypted key",
                 style = TextStyle(color = Color.Black),
             )
             Spacer(Modifier.weight(1f))
